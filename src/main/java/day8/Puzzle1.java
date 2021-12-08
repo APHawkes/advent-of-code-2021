@@ -6,35 +6,42 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 public class Puzzle1 {
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("./src/main/resources/day8/sample.txt"));
-        String currentLine = reader.readLine();
+        BufferedReader reader = new BufferedReader(new FileReader("./src/main/resources/day8/input.txt"));
+        String currentLine;
+        List<String> signalPatterns = new ArrayList<>();
+        List<String> outputValues = new ArrayList<>();
+        while ((currentLine = reader.readLine())!= null) {
+            StringTokenizer st = new StringTokenizer(currentLine, " |", true);
 
-        List<Integer> positions = new ArrayList<>();
-        positions.addAll(Arrays.stream(currentLine.split(",")).map(Integer::parseInt).collect(Collectors.toList()));
-
-        var maxPos = positions.stream().max(Integer::compareTo).get();
-        int minCost = Integer.MAX_VALUE;
-
-        for (int i = 0; i < maxPos; i++) {
-            int cost = calculateCost(positions, i);
-            if (cost < minCost) {
-                minCost = cost;
+            boolean reachedPipe = false;
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if (" ".equals(token))
+                    continue;
+                if ("|".equals(token)){
+                    reachedPipe = true;
+                    continue;
+                }
+                if (!reachedPipe) {
+                    signalPatterns.add(token);
+                } else {
+                    outputValues.add(token);
+                }
             }
         }
 
-        System.out.println("Min Fuel Cost: " + minCost);
+        long count = outputValues.stream()
+                //correspond to digits 1, 4, 7, 8
+                .filter(x->(x.length()==2 || x.length()==4 || x.length()==3 || x.length()==7))
+                .count();
 
+        System.out.println(count);
     }
 
-    public static int calculateCost(List<Integer> positions, int finalPosition) {
-        var cost = positions.stream()
-                .map(x-> finalPosition-x)
-                .map(Math::abs)
-                .reduce((x,y)->x+y);
-        return cost.get();
-    }
+
 }
